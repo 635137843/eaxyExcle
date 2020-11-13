@@ -12,13 +12,13 @@ import java.util.Map;
  * @author zhangcanlong
  * @since 2019-10-21
  */
-public class StringExcelListener extends AnalysisEventListener<Map<Integer, String>> {
+public class StringExcelListener extends AnalysisEventListener<ExcelTestBean> {
 
     /**
      * 自定义用于暂时存储data
      * 可以通过实例获取该值
      */
-    private List<Map<Integer, String>> datas = new ArrayList<>();
+    private List<ExcelTestBean> datas = new ArrayList<>();
     private Map<String, String> heads = new HashMap<>();
 
     /**
@@ -41,9 +41,14 @@ public class StringExcelListener extends AnalysisEventListener<Map<Integer, Stri
         heads.putAll(map);
     }
 
-    @Override
+    /*@Override
     public void invoke(Map<Integer, String> integerStringMap, AnalysisContext analysisContext) {
         datas.add(integerStringMap);
+    }*/
+
+    @Override
+    public void invoke(ExcelTestBean data, AnalysisContext context) {
+        datas.add(data);
     }
 
     @Override
@@ -57,7 +62,7 @@ public class StringExcelListener extends AnalysisEventListener<Map<Integer, Stri
      *
      * @return 返回读取的数据集合
      **/
-    public List<Map<Integer, String>> getDatas() {
+    public List<ExcelTestBean> getDatas() {
         return datas;
     }
 
@@ -75,7 +80,7 @@ public class StringExcelListener extends AnalysisEventListener<Map<Integer, Stri
      *
      * @param datas 设置读取的数据集合
      **/
-    public void setDatas(List<Map<Integer, String>> datas) {
+    public void setDatas(List<ExcelTestBean> datas) {
         this.datas = datas;
     }
 }

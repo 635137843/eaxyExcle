@@ -6,27 +6,23 @@ import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.excel.read.metadata.ReadSheet;
 import com.alibaba.excel.write.metadata.WriteSheet;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 public class MyExcel {
 
     public static void main(String[] args) {
-        //simpleRead();
-        simpleWrite();
+        simpleRead();
+        //simpleWrite();
     }
 
     public static void simpleRead() {
         // 有个很重要的点 DemoDataListener 不能被spring管理，要每次读取excel都要new,然后里面用到spring可以构造方法传进去
         // 写法1：
-        String fileName = "D://hss123.xlsx";
-        // 这里 需要指定读用哪个class去读，然后读取第一个sheet 文件流会自动关闭
+        String excelFileName = "C:\\Users\\HMX\\Desktop\\111.xls";
+        String fileName = "D://设备.txt";
+
+        // 这里 需要指定读用哪个class去读，然后读   取第一个sheet 文件流会自动关闭
         StringExcelListener listener = new StringExcelListener();
         /*EasyExcel.read(fileName, null, listener).sheet().doRead();
         System.out.println(listener.getDatas());*/
@@ -34,11 +30,15 @@ public class MyExcel {
         // 写法2：
         ExcelReader excelReader = null;
         try {
-            excelReader = EasyExcel.read(fileName, null, listener).build();
+            excelReader = EasyExcel.read(excelFileName, ExcelTestBean.class, listener).build();
             ReadSheet readSheet = EasyExcel.readSheet(0).build();
             excelReader.read(readSheet);
-            List<Map<Integer, String>> datas = listener.getDatas();
-            Map<String, String> heads = listener.getHeads();
+            readSheet.setClazz(ExcelTestBean.class);
+            List<ExcelTestBean> datasdatas = listener.getDatas();
+            /*datasdatas.forEach(
+                    e->{
+                            writeFileAppend(fileName, e.get(7), e.get(8));
+                    });*/
         } finally {
             if (excelReader != null) {
                 // 这里千万别忘记关闭，读的时候会创建临时文件，到时磁盘会崩的
@@ -109,5 +109,52 @@ public class MyExcel {
         list.put("data",data1);
         list.put("data2",head);
         return list;
+    }
+
+    //写文件
+    private static void writeFileAppend(String filePath, String Content, String Content2) {
+        String input = "<rule id=\"DecisionRule_13z"+getRandomString(4)+"\">\n" +
+                "        <inputEntry id=\"UnaryTests_0ly"+getRandomString(4)+"\">\n" +
+                "          <text>\"applicationNetworkAccess\"</text>\n" +
+                "        </inputEntry>\n" +
+                "        <inputEntry id=\"UnaryTests_1dn"+getRandomString(4)+"\">\n" +
+                "          <text>\""+Content+"\"</text>\n" +
+                "        </inputEntry>\n" +
+                "        <inputEntry id=\"UnaryTests_07k"+getRandomString(4)+"\">\n" +
+                "          <text>\"紧急\"</text>\n" +
+                "        </inputEntry>\n" +
+                "        <outputEntry id=\"LiteralExpression_1w9"+getRandomString(4)+"\">\n" +
+                "          <text>\"['"+Content2+"']\"</text>\n" +
+                "        </outputEntry>\n" +
+                "</rule>";
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(filePath, true);
+            fw.write(input+"\n");
+            //fw.flush();
+            //fw.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fw != null) {
+                    fw.flush();
+                    fw.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static String getRandomString(int length){
+        String str="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random random=new Random();
+        StringBuffer sb=new StringBuffer();
+        for(int i=0;i<length;i++){
+            int number=random.nextInt(62);
+            sb.append(str.charAt(number));
+        }
+        return sb.toString();
     }
 }
